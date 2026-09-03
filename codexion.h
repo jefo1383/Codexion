@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/08/31 16:15:32 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/03 11:05:19 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ typedef struct s_config
 	size_t		time_debug;		// Temps de debug en ms
 	size_t		time_refactor;	// Temps de refactoring en ms
 	size_t		cooldown;		// Temps de rechargement du dongle en ms
-	t_scheduler	scheduler;		// Politique d'ordonnancement (FIFO ou EDF)
+	t_scheduler	scheduler;		// Politique d'ordonnancement (fifo ou edf)
 }	t_config;
 
 /**

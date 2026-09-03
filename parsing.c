@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 13:48:22 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/03 10:32:49 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/03 13:59:55 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,5 +76,15 @@ bool	check_args(int argc, char **argv)
  */
 void	init_config(t_config *config, char **argv)
 {
-	
+	config->nb_coders = atoi(argv[1]);
+	config->time_burnout = atoi(argv[2]);
+	config->time_compile = atoi(argv[3]);
+	config->time_debug = atoi(argv[4]);
+	config->time_refactor = atoi(argv[5]);
+	config->nb_compiles = atoi(argv[6]);
+	config->cooldown = atoi(argv[7]);
+	if (strcmp(argv[8], "fifo") == 0)
+		config->scheduler = FIFO;
+	else
+		config->scheduler = EDF;
 }
