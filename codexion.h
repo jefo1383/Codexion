@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/03 11:05:19 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/04 12:00:34 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,12 @@
 # include <stdlib.h>
 # include <pthread.h>
 # include <sys/time.h>
-# include <time.h>
 # include <stdio.h>
 # include <string.h>
 # include <stdbool.h>
+
+typedef struct s_sim	t_sim;
+typedef struct s_coder	t_coder;
 
 /**
  * @brief Defines the scheduling policy for dongle attribution.
@@ -57,19 +59,6 @@ typedef struct s_dongle
 }	t_dongle;
 
 /**
- * @brief Defines one coder (one thread).
- */
-typedef struct s_coder
-{
-	int			coder_id;
-	pthread_t	thread_id;
-	t_dongle	*dgl_adj[2];
-	size_t		last_compile;
-	int			count_compile;
-	t_config	*config;
-}	t_coder;
-
-/**
  * @brief Hold all the simulation engine.
  */
 typedef struct s_sim
@@ -81,5 +70,19 @@ typedef struct s_sim
 	pthread_mutex_t	can_display;
 	pthread_mutex_t	can_stop;
 }	t_sim;
+
+/**
+ * @brief Defines one coder (one thread).
+ */
+typedef struct s_coder
+{
+	int			coder_id;
+	pthread_t	thread_id;
+	t_dongle	*dgl_adj[2];
+	size_t		last_compile;
+	int			count_compile;
+	t_config	*config;
+	t_sim		*sim;
+}	t_coder;
 
 #endif

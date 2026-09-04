@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 13:57:47 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/03 17:40:16 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/04 09:53:34 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ bool	init_coders(t_sim *sim)
 		sim->coders[i].dgl_adj[0] = &sim->dongles[i];
 		sim->coders[i].dgl_adj[1] = &sim->dongles[(
 				(i - 1 + sim->config.nb_coders) % sim->config.nb_coders)];
+		sim->coders[i].sim = sim;
 		if (pthread_create(&sim->coders[i].thread_id,
 				NULL, coder_routine, &sim->coders[i]) != 0)
 		{
