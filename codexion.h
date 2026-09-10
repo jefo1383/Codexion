@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/04 12:00:34 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/10 16:15:22 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ typedef struct s_config
 typedef struct s_dongle
 {
 	pthread_mutex_t	is_available;
+	pthread_cond_t	cond_wait;
+	bool			in_use;
 	size_t			free_time;
 	int				dongle_id;
 }	t_dongle;
@@ -63,6 +65,7 @@ typedef struct s_dongle
  */
 typedef struct s_sim
 {
+	size_t			start_time;
 	t_config		config;
 	t_coder			*coders;
 	t_dongle		*dongles;
@@ -84,5 +87,28 @@ typedef struct s_coder
 	t_config	*config;
 	t_sim		*sim;
 }	t_coder;
+
+/**
+ * @brief Represents a single request in the priority queue.
+ */
+typedef struct s_request
+{
+	t_coder	*coder;
+	size_t	priority_value;
+}	t_request;
+
+/**
+ * @brief Represents the priority queue (min-heap).
+ */
+typedef struct s_heap
+{
+	t_request	*requests;
+	int			nb_requests;
+	int			max_requests;
+}	t_heap;
+
+size_t	get_time_ms(void);
+size_t	current_time(t_coder *coder);
+bool	check_stop(t_sim *sim);
 
 #endif

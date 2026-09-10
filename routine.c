@@ -6,21 +6,11 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:43:21 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/04 11:57:31 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/10 11:37:20 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-
-/**
- * @brief Gets the current time in milliseconds.
- * 
- * @return size_t The current time in milliseconds.
- */
-size_t	get_current_time_ms(void)
-{
-	
-}
 
 /**
  * @brief Locks the left and right dongles for the coder and logs the actions.
@@ -32,31 +22,67 @@ void	take_dongles(t_coder *coder)
 	if (pthread_mutex_lock(&coder->dgl_adj[0]->is_available) == 0)
 	{
 		pthread_mutex_lock(&coder->sim->can_display);
-		printf("%d %d has taken dongle %d", coder->coder_id, coder->dgl_adj[0]->dongle_id);
+		printf("%zu %d has taken dongle %d\n",
+			current_time(coder), coder->coder_id,
+			coder->dgl_adj[0]->dongle_id);
 		pthread_mutex_unlock(&coder->sim->can_display);
 	}
 	if (pthread_mutex_lock(&coder->dgl_adj[1]->is_available) == 0)
 	{
 		pthread_mutex_lock(&coder->sim->can_display);
-		printf("%d %d has taken dongle %d", coder->coder_id, coder->dgl_adj[1]->dongle_id);
+		printf("%zu %d has taken dongle %d\n",
+			current_time(coder), coder->coder_id,
+			coder->dgl_adj[1]->dongle_id);
 		pthread_mutex_unlock(&coder->sim->can_display);
 	}
 }
 
 /**
- * @brief Safely checks if the simulation should stop.
+ * @brief Simulates the compiling action of a coder.
  * 
- * @param sim The main simulation structure.
- * @return true if the simulation is stopped, false otherwise.
+ * @param coder Pointer to the coder executing the action.
  */
-bool	check_stop(t_sim *sim)
+void	compile(t_coder *coder)
 {
-	bool	check;
+	coder->last_compile = current_time(coder);
+	pthread_mutex_lock(&coder->sim->can_display);
+	printf("%zu %d is compiling\n",
+		current_time(coder), coder->coder_id);
+	pthread_mutex_unlock(&coder->sim->can_display);
+	usleep(coder->config->time_compile * 1000);
+	coder->count_compile++;
+	coder->dgl_adj[0]->free_time = current_time(coder);
+	pthread_mutex_unlock(&coder->dgl_adj[0]->is_available);
+	coder->dgl_adj[1]->free_time = current_time(coder);
+	pthread_mutex_unlock(&coder->dgl_adj[1]->is_available);
+}
 
-	pthread_mutex_lock(&sim->can_stop);
-	check = sim->stop;
-	pthread_mutex_unlock(&sim->can_stop);
-	return (check);
+/**
+ * @brief Simulates the debugging action of a coder.
+ * 
+ * @param coder Pointer to the coder executing the action.
+ */
+void	debug(t_coder *coder)
+{
+	pthread_mutex_lock(&coder->sim->can_display);
+	printf("%zu %d is debugging\n",
+		current_time(coder), coder->coder_id);
+	pthread_mutex_unlock(&coder->sim->can_display);
+	usleep(coder->config->time_debug * 1000);
+}
+
+/**
+ * @brief Simulates the refactoring action of a coder.
+ * 
+ * @param coder Pointer to the coder executing the action.
+ */
+void	refactor(t_coder *coder)
+{
+	pthread_mutex_lock(&coder->sim->can_display);
+	printf("%zu %d is refactoring\n",
+		current_time(coder), coder->coder_id);
+	pthread_mutex_unlock(&coder->sim->can_display);
+	usleep(coder->config->time_refactor * 1000);
 }
 
 /**
@@ -74,6 +100,10 @@ void	*coder_routine(void *arg)
 		usleep(1);
 	while (!check_stop(coder->sim))
 	{
-		
+		take_dongles(coder);
+		compile(coder);
+		debug(coder);
+		refactor(coder);
 	}
+	return (NULL);
 }

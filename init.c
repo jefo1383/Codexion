@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 13:57:47 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/04 09:53:34 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/10 16:24:16 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,13 @@ bool	init_dongles(t_sim *sim)
 	{
 		sim->dongles[i].dongle_id = i + 1;
 		sim->dongles[i].free_time = 0;
+		sim->dongles[i].in_use = false;
 		if (pthread_mutex_init(&sim->dongles[i].is_available, NULL) != 0)
+		{
+			free(sim->dongles);
+			return (false);
+		}
+		if (pthread_cond_init(&sim->dongles[i].cond_wait, NULL) != 0)
 		{
 			free(sim->dongles);
 			return (false);
@@ -85,6 +91,7 @@ bool	init_coders(t_sim *sim)
  */
 bool	init_sim(t_sim *sim)
 {
+	sim->start_time = get_time_ms();
 	if (!init_dongles(sim))
 		return (false);
 	if (!init_coders(sim))
@@ -105,5 +112,22 @@ bool	init_sim(t_sim *sim)
 		free(sim->coders);
 		return (false);
 	}
+	return (true);
+}
+
+/**
+ * @brief Initializes the priority queue (min-heap).
+ * 
+ * @param heap Pointer to the heap structure to initialize.
+ * @param max_capacity The maximum number of requests the heap can hold.
+ * @return true if initialization is successful, false otherwise.
+ */
+bool	init_heap(t_heap *heap, int max_capacity)
+{
+	heap->requests = malloc(sizeof(t_request) * max_capacity);
+	if (!heap->requests)
+		return (false);
+	heap->nb_requests = 0;
+	heap->max_requests = max_capacity;
 	return (true);
 }
