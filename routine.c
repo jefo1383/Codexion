@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:43:21 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/10 11:37:20 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/11 17:36:00 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,11 @@
  */
 void	take_dongles(t_coder *coder)
 {
+	if (pthread_mutex_lock(&coder->sim->secure_heap) == 0)
+	{
+		insert_request(&coder->sim->heap, coder, init_request(coder));
+		pthread_mutex_unlock(&coder->sim->secure_heap);
+	}
 	if (pthread_mutex_lock(&coder->dgl_adj[0]->is_available) == 0)
 	{
 		pthread_mutex_lock(&coder->sim->can_display);

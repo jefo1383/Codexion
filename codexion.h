@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/10 16:15:22 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/11 17:21:06 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,10 @@
 # include <string.h>
 # include <stdbool.h>
 
-typedef struct s_sim	t_sim;
-typedef struct s_coder	t_coder;
+typedef struct s_sim		t_sim;
+typedef struct s_coder		t_coder;
+typedef struct s_heap		t_heap;
+typedef struct s_request	t_request;
 
 /**
  * @brief Defines the scheduling policy for dongle attribution.
@@ -72,6 +74,8 @@ typedef struct s_sim
 	bool			stop;
 	pthread_mutex_t	can_display;
 	pthread_mutex_t	can_stop;
+	pthread_mutex_t	secure_heap;
+	t_heap			heap;
 }	t_sim;
 
 /**
@@ -110,5 +114,10 @@ typedef struct s_heap
 size_t	get_time_ms(void);
 size_t	current_time(t_coder *coder);
 bool	check_stop(t_sim *sim);
+void	*coder_routine(void *arg);
+size_t	init_request(t_coder *coder);
+void	free_all(t_sim *sim, t_heap *heap);
+void	rollback_dongles(t_sim *sim, int count);
+bool	insert_request(t_heap *heap, t_coder *coder, size_t priority);
 
 #endif

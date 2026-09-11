@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 13:57:47 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/10 16:24:16 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/11 17:07:33 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,13 @@ bool	init_dongles(t_sim *sim)
 		sim->dongles[i].in_use = false;
 		if (pthread_mutex_init(&sim->dongles[i].is_available, NULL) != 0)
 		{
-			free(sim->dongles);
+			rollback_dongles(sim, i - 1);
 			return (false);
 		}
 		if (pthread_cond_init(&sim->dongles[i].cond_wait, NULL) != 0)
 		{
-			free(sim->dongles);
+			rollback_dongles(sim, i - 1);
+			pthread_mutex_destroy(&sim->dongles[i].is_available);
 			return (false);
 		}
 		i++;
@@ -79,6 +80,30 @@ bool	init_coders(t_sim *sim)
 			return (false);
 		}
 		i++;
+	}
+	return (true);
+}
+
+/**
+ * @brief Initializes all the global mutexes for the simulation.
+ * 
+ * @param sim Pointer to the main simulation structure.
+ * @return bool true if successful, false if any mutex init fails.
+ */
+bool	init_mutexes(t_sim *sim)
+{
+	if (pthread_mutex_init(&sim->can_display, NULL) != 0)
+		return (false);
+	if (pthread_mutex_init(&sim->can_stop, NULL) != 0)
+	{
+		pthread_mutex_destroy(&sim->can_display);
+		return (false);
+	}
+	if (pthread_mutex_init(&sim->secure_heap, NULL) != 0)
+	{
+		pthread_mutex_destroy(&sim->can_display);
+		pthread_mutex_destroy(&sim->can_stop);
+		return (false);
 	}
 	return (true);
 }
