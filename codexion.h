@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/11 17:21:06 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/14 15:40:32 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ typedef struct s_sim
 	pthread_mutex_t	can_display;
 	pthread_mutex_t	can_stop;
 	pthread_mutex_t	secure_heap;
+	pthread_cond_t	wait_heap;
 	t_heap			heap;
 }	t_sim;
 
@@ -111,13 +112,22 @@ typedef struct s_heap
 	int			max_requests;
 }	t_heap;
 
-size_t	get_time_ms(void);
-size_t	current_time(t_coder *coder);
-bool	check_stop(t_sim *sim);
-void	*coder_routine(void *arg);
-size_t	init_request(t_coder *coder);
-void	free_all(t_sim *sim, t_heap *heap);
-void	rollback_dongles(t_sim *sim, int count);
-bool	insert_request(t_heap *heap, t_coder *coder, size_t priority);
+size_t		get_time_ms(void);
+size_t		current_time(t_coder *coder);
+bool		check_stop(t_sim *sim);
+void		*coder_routine(void *arg);
+void		*monitor_routine(void *arg);
+size_t		init_request(t_coder *coder);
+void		free_all(t_sim *sim, t_heap *heap);
+void		rollback_dongles(t_sim *sim, int count);
+bool		insert_request(t_heap *heap, t_coder *coder, size_t priority);
+void		bubble_up(t_heap *heap, int index);
+t_request	extract_min(t_heap *heap);
+void		wait_for_turn(t_coder *coder);
+void		wait_both_cooldowns(t_coder *coder);
+bool		is_higher_priority(t_request req1, t_request req2);
+bool		check_args(int argc, char **argv);
+void		init_config(t_config *config, char **argv);
+bool		init_sim(t_sim *sim);
 
 #endif

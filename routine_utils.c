@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/10 10:01:44 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/10 14:57:35 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/14 13:32:52 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ void	*monitor_routine(void *arg)
 		{
 			pthread_mutex_lock(&sim->can_stop);
 			sim->stop = true;
+			pthread_cond_broadcast(&sim->wait_heap);
 			pthread_mutex_unlock(&sim->can_stop);
 		}
 	}

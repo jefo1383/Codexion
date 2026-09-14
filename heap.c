@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 09:06:24 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/11 13:20:13 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/14 14:27:00 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,7 @@ void	bubble_up(t_heap *heap, int index)
 	while (index > 0)
 	{
 		parent = ((index - 1) / 2);
-		if (heap->requests[index].priority_value
-			< heap->requests[parent].priority_value)
+		if (is_higher_priority(heap->requests[index], heap->requests[parent]))
 		{
 			swap_requests(&heap->requests[index],
 				&heap->requests[parent]);
@@ -89,12 +88,10 @@ void	bubble_down(t_heap *heap, int index)
 		child_1 = (2 * index) + 1;
 		child_2 = (2 * index) + 2;
 		smallest = child_1;
-		if (child_2 < heap->nb_requests
-			&& heap->requests[child_2].priority_value
-			< heap->requests[child_1].priority_value)
+		if (child_2 < heap->nb_requests && is_higher_priority(
+				heap->requests[child_2], heap->requests[child_1]))
 			smallest = child_2;
-		if (heap->requests[index].priority_value
-			> heap->requests[smallest].priority_value)
+		if (is_higher_priority(heap->requests[smallest], heap->requests[index]))
 		{
 			swap_requests(&heap->requests[index], &heap->requests[smallest]);
 			index = smallest;

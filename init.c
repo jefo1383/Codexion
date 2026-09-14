@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 13:57:47 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/11 17:07:33 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/14 15:19:26 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,13 @@ bool	init_mutexes(t_sim *sim)
 		pthread_mutex_destroy(&sim->can_stop);
 		return (false);
 	}
+	if (pthread_cond_init(&sim->wait_heap, NULL) != 0)
+	{
+		pthread_mutex_destroy(&sim->can_display);
+		pthread_mutex_destroy(&sim->can_stop);
+		pthread_mutex_destroy(&sim->secure_heap);
+		return (false);
+	}
 	return (true);
 }
 
@@ -117,22 +124,23 @@ bool	init_mutexes(t_sim *sim)
 bool	init_sim(t_sim *sim)
 {
 	sim->start_time = get_time_ms();
-	if (!init_dongles(sim))
+	if (!init_heap(&sim->heap, sim->config.nb_coders))
 		return (false);
+	if (!init_dongles(sim))
+	{
+		free(sim->heap.requests);
+		return (false);
+	}
 	if (!init_coders(sim))
 	{
+		free(sim->heap.requests);
 		free(sim->dongles);
 		return (false);
 	}
 	sim->stop = false;
-	if (pthread_mutex_init(&sim->can_display, NULL) != 0)
+	if (!init_mutexes(sim))
 	{
-		free(sim->dongles);
-		free(sim->coders);
-		return (false);
-	}
-	if (pthread_mutex_init(&sim->can_stop, NULL) != 0)
-	{
+		free(sim->heap.requests);
 		free(sim->dongles);
 		free(sim->coders);
 		return (false);
