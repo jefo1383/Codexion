@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 17:43:21 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/15 17:11:32 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/15 17:39:36 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	take_dongles(t_coder *coder)
 }
 
 /**
- * @brief Simulates the compiling action of a coder.
+ * @brief Simulates the compiling action of a coder and releases dongles.
  * 
  * @param coder Pointer to the coder executing the action.
  */
@@ -50,11 +50,15 @@ void	compile(t_coder *coder)
 	pthread_mutex_lock(&coder->state_lock);
 	coder->count_compile++;
 	pthread_mutex_unlock(&coder->state_lock);
+	pthread_mutex_lock(&coder->sim->secure_heap);
+	coder->dgl_adj[0]->in_use = false;
+	coder->dgl_adj[1]->in_use = false;
 	coder->dgl_adj[0]->free_time = current_time(coder);
-	pthread_mutex_unlock(&coder->dgl_adj[0]->is_available);
 	coder->dgl_adj[1]->free_time = current_time(coder);
-	pthread_mutex_unlock(&coder->dgl_adj[1]->is_available);
 	pthread_cond_broadcast(&coder->sim->wait_heap);
+	pthread_mutex_unlock(&coder->sim->secure_heap);
+	pthread_mutex_unlock(&coder->dgl_adj[0]->is_available);
+	pthread_mutex_unlock(&coder->dgl_adj[1]->is_available);
 }
 
 /**
@@ -90,6 +94,13 @@ void	*coder_routine(void *arg)
 	t_coder	*coder;
 
 	coder = arg;
+	if (coder->config->nb_coders == 1)
+	{
+		print_dongle(coder, coder->dgl_adj[0]->dongle_id);
+		while (!check_stop(coder->sim))
+			usleep(1000);
+		return (NULL);
+	}
 	if (coder->coder_id % 2 == 0)
 		usleep(1000);
 	while (!check_stop(coder->sim))

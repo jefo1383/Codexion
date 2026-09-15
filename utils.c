@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 14:12:03 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/15 16:11:46 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/15 17:21:52 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,29 +101,33 @@ bool	wait_for_turn(t_coder *coder)
 }
 
 /**
- * @brief Pauses the coder thread until both adjacent dongles 
- *        have finished their cooldown period.
+ * @brief Waits until both adjacent dongles are not in use and have
+ *        finished their cooldown, then marks them as in use.
  *
  * @param coder Pointer to the coder attempting to compile.
  */
 void	wait_both_cooldowns(t_coder *coder)
 {
-	size_t	dongles_cd;
+	size_t	cd;
 	size_t	time;
-	size_t	t1;
-	size_t	t2;
 
-	pthread_mutex_lock(&coder->dgl_adj[0]->is_available);
-	t1 = coder->dgl_adj[0]->free_time;
-	pthread_mutex_unlock(&coder->dgl_adj[0]->is_available);
-	pthread_mutex_lock(&coder->dgl_adj[1]->is_available);
-	t2 = coder->dgl_adj[1]->free_time;
-	pthread_mutex_unlock(&coder->dgl_adj[1]->is_available);
-	if (t1 > t2)
-		dongles_cd = t1 + coder->config->cooldown;
-	else
-		dongles_cd = t2 + coder->config->cooldown;
-	time = current_time(coder);
-	if (time < dongles_cd)
-		usleep((dongles_cd - time) * 1000);
+	pthread_mutex_lock(&coder->sim->secure_heap);
+	while (!check_stop(coder->sim))
+	{
+		while (!check_stop(coder->sim) && (coder->dgl_adj[0]->in_use
+				|| coder->dgl_adj[1]->in_use))
+			pthread_cond_wait(&coder->sim->wait_heap, &coder->sim->secure_heap);
+		cd = coder->dgl_adj[0]->free_time + coder->config->cooldown;
+		if (coder->dgl_adj[1]->free_time + coder->config->cooldown > cd)
+			cd = coder->dgl_adj[1]->free_time + coder->config->cooldown;
+		time = current_time(coder);
+		if (time >= cd)
+			break ;
+		pthread_mutex_unlock(&coder->sim->secure_heap);
+		usleep((cd - time) * 1000);
+		pthread_mutex_lock(&coder->sim->secure_heap);
+	}
+	coder->dgl_adj[0]->in_use = true;
+	coder->dgl_adj[1]->in_use = true;
+	pthread_mutex_unlock(&coder->sim->secure_heap);
 }
