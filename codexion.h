@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/14 15:40:32 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/15 17:17:01 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@
 # include <string.h>
 # include <stdbool.h>
 
-typedef struct s_sim		t_sim;
 typedef struct s_coder		t_coder;
-typedef struct s_heap		t_heap;
 typedef struct s_request	t_request;
+typedef struct s_heap		t_heap;
+typedef struct s_sim		t_sim;
 
 /**
  * @brief Defines the scheduling policy for dongle attribution.
@@ -56,11 +56,20 @@ typedef struct s_config
 typedef struct s_dongle
 {
 	pthread_mutex_t	is_available;
-	pthread_cond_t	cond_wait;
-	bool			in_use;
 	size_t			free_time;
 	int				dongle_id;
+	bool			in_use;
 }	t_dongle;
+
+/**
+ * @brief Represents the priority queue (min-heap).
+ */
+typedef struct s_heap
+{
+	t_request	*requests;
+	int			nb_requests;
+	int			max_requests;
+}	t_heap;
 
 /**
  * @brief Hold all the simulation engine.
@@ -84,13 +93,14 @@ typedef struct s_sim
  */
 typedef struct s_coder
 {
-	int			coder_id;
-	pthread_t	thread_id;
-	t_dongle	*dgl_adj[2];
-	size_t		last_compile;
-	int			count_compile;
-	t_config	*config;
-	t_sim		*sim;
+	int				coder_id;
+	pthread_t		thread_id;
+	t_dongle		*dgl_adj[2];
+	size_t			last_compile;
+	int				count_compile;
+	pthread_mutex_t	state_lock;
+	t_config		*config;
+	t_sim			*sim;
 }	t_coder;
 
 /**
@@ -101,16 +111,6 @@ typedef struct s_request
 	t_coder	*coder;
 	size_t	priority_value;
 }	t_request;
-
-/**
- * @brief Represents the priority queue (min-heap).
- */
-typedef struct s_heap
-{
-	t_request	*requests;
-	int			nb_requests;
-	int			max_requests;
-}	t_heap;
 
 size_t		get_time_ms(void);
 size_t		current_time(t_coder *coder);
@@ -123,11 +123,15 @@ void		rollback_dongles(t_sim *sim, int count);
 bool		insert_request(t_heap *heap, t_coder *coder, size_t priority);
 void		bubble_up(t_heap *heap, int index);
 t_request	extract_min(t_heap *heap);
-void		wait_for_turn(t_coder *coder);
+bool		wait_for_turn(t_coder *coder);
 void		wait_both_cooldowns(t_coder *coder);
 bool		is_higher_priority(t_request req1, t_request req2);
 bool		check_args(int argc, char **argv);
 void		init_config(t_config *config, char **argv);
 bool		init_sim(t_sim *sim);
+void		print_action(t_coder *coder, char *action);
+void		print_dongle(t_coder *coder, int dongle_id);
+void		*ft_calloc(size_t size, size_t count);
+bool		is_burned_out(t_coder *coder);
 
 #endif

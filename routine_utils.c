@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/10 10:01:44 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/14 13:32:52 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/15 16:00:57 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,17 +67,12 @@ bool	check_conditions(t_sim *sim)
 	i = 0;
 	while (i < sim->config.nb_coders)
 	{
-		if ((current_time(&sim->coders[i]) - sim->coders[i].last_compile)
-			> sim->config.time_burnout)
-		{
-			pthread_mutex_lock(&sim->can_display);
-			printf("%zu %d burned out\n",
-				current_time(&sim->coders[i]), sim->coders[i].coder_id);
-			pthread_mutex_unlock(&sim->can_display);
+		if (is_burned_out(&sim->coders[i]))
 			return (true);
-		}
+		pthread_mutex_lock(&sim->coders[i].state_lock);
 		if (sim->coders[i].count_compile >= sim->config.nb_compiles)
 			finished_coders++;
+		pthread_mutex_unlock(&sim->coders[i].state_lock);
 		i++;
 	}
 	if (finished_coders == sim->config.nb_coders)
@@ -105,6 +100,7 @@ void	*monitor_routine(void *arg)
 			pthread_cond_broadcast(&sim->wait_heap);
 			pthread_mutex_unlock(&sim->can_stop);
 		}
+		usleep(1000);
 	}
 	return (NULL);
 }

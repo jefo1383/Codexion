@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:21:42 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/14 15:53:14 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/15 11:21:32 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,10 @@ void	manage_threads(t_sim *sim)
 	i = 0;
 	pthread_create(&monitor, NULL, monitor_routine, sim);
 	while (i < sim->config.nb_coders)
+	{
 		pthread_join(sim->coders[i].thread_id, NULL);
+		i++;
+	}
 	pthread_join(monitor, NULL);
 }
 
