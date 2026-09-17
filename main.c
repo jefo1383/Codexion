@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 15:21:42 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/15 11:21:32 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/17 10:36:30 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int	main(int argc, char **argv)
 {
 	t_sim	sim;
 
-	if (!check_args(argc, argv))
+	if (!check_args(argc, argv) || !check_cooldown(argv[7]))
 		return (1);
 	init_config(&sim.config, argv);
 	if (!init_sim(&sim))

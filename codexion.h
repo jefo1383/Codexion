@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/15 17:17:01 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/17 10:35:20 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,7 @@ bool		wait_for_turn(t_coder *coder);
 void		wait_both_cooldowns(t_coder *coder);
 bool		is_higher_priority(t_request req1, t_request req2);
 bool		check_args(int argc, char **argv);
+bool		check_cooldown(char *str);
 void		init_config(t_config *config, char **argv);
 bool		init_sim(t_sim *sim);
 void		print_action(t_coder *coder, char *action);

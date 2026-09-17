@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 13:48:22 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/03 13:59:55 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/17 10:35:05 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ bool	check_args(int argc, char **argv)
 		fprintf(stderr, "Error: Expected 8 arguments, got %d\n", argc - 1);
 		return (false);
 	}
-	while (i < 8)
+	while (i < 7)
 	{
 		if (!is_valid_number(argv[i]))
 		{
@@ -64,6 +64,35 @@ bool	check_args(int argc, char **argv)
 	{
 		fprintf(stderr, "%s must be 'fifo' or 'edf'\n", argv[8]);
 		return (false);
+	}
+	return (true);
+}
+
+/**
+ * @brief Checks if the dongle cooldown argument is valid.
+ * 
+ * @param argc The argument count.
+ * @param argv The argument values.
+ * @return true if valid, false otherwise.
+ */
+bool	check_cooldown(char *str)
+{
+	int	i;
+
+	i = 0;
+	if (!str || str[0] == '\0')
+	{
+		fprintf(stderr, "Error: %s must be >= 0\n", str);
+		return (false);
+	}
+	while (str[i] != '\0')
+	{
+		if (str[i] < '0' || str[i] > '9')
+		{
+			fprintf(stderr, "Error: %s must be >= 0\n", str);
+			return (false);
+		}
+		i++;
 	}
 	return (true);
 }
