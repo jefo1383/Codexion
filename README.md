@@ -55,6 +55,18 @@ nm -g --defined-only *.o
 
 Expected output: only `T` symbols (functions) should be displayed, confirming the total absence of data segment symbols (`D`, `d`, `B`, `b`).
 
+### Compilation Count Verification
+To verify that compilations are distributed fairly and that every coder reaches their target quota without starvation, you can process the simulation stream using a Unix pipeline:
+
+```bash
+./codexion 5 900 200 200 100 5 0 edf | grep "is compiling" | awk '{print $2}' | sort | uniq -c
+```
+
+* 🔍 `grep "is compiling"`: Filters the log to keep only lines where a compilation starts.
+* 🔢 `awk '{print $2}'`: Extracts the second column, corresponding to the coder ID.
+* 🗂️ `sort`: Groups identical coder IDs together.
+* 📊 `uniq -c`: Prefixes each unique coder ID with its total count of compilations.
+
 ---
 
 ## Resources
