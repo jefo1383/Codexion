@@ -6,7 +6,7 @@
 /*   By: jfoeller <jeremy.foeller@learner.42.tec    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 14:16:09 by jfoeller          #+#    #+#             */
-/*   Updated: 2026/09/17 10:35:20 by jfoeller         ###   ########.fr       */
+/*   Updated: 2026/09/18 09:08:26 by jfoeller         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,25 +114,28 @@ typedef struct s_request
 
 size_t		get_time_ms(void);
 size_t		current_time(t_coder *coder);
-bool		check_stop(t_sim *sim);
+size_t		init_request(t_coder *coder);
+
+t_request	extract_min(t_heap *heap);
+
 void		*coder_routine(void *arg);
 void		*monitor_routine(void *arg);
-size_t		init_request(t_coder *coder);
 void		free_all(t_sim *sim, t_heap *heap);
 void		rollback_dongles(t_sim *sim, int count);
-bool		insert_request(t_heap *heap, t_coder *coder, size_t priority);
 void		bubble_up(t_heap *heap, int index);
-t_request	extract_min(t_heap *heap);
-bool		wait_for_turn(t_coder *coder);
 void		wait_both_cooldowns(t_coder *coder);
-bool		is_higher_priority(t_request req1, t_request req2);
-bool		check_args(int argc, char **argv);
-bool		check_cooldown(char *str);
 void		init_config(t_config *config, char **argv);
-bool		init_sim(t_sim *sim);
 void		print_action(t_coder *coder, char *action);
 void		print_dongle(t_coder *coder, int dongle_id);
 void		*ft_calloc(size_t size, size_t count);
+
+bool		insert_request(t_heap *heap, t_coder *coder, size_t priority);
+bool		check_stop(t_sim *sim);
+bool		wait_for_turn(t_coder *coder);
+bool		is_higher_priority(t_request req1, t_request req2);
+bool		check_args(int argc, char **argv);
+bool		check_cooldown(char *str);
+bool		init_sim(t_sim *sim);
 bool		is_burned_out(t_coder *coder);
 
 #endif
